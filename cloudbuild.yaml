@@ -1,28 +1,25 @@
 steps:
-# This step builds your Docker container
+# 1. Build the container image
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/dsa-assistant-repo/dsa-assistant-image:$COMMIT_SHA', '.']
 
-# This step pushes the container to Google's Artifact Registry
+# 2. Push the image to Artifact Registry
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/dsa-assistant-repo/dsa-assistant-image:$COMMIT_SHA']
 
-# This step deploys your container to Cloud Run
-- name: 'gcr.io/google-appengine/exec-wrapper'
+# 3. Deploy the new image to Cloud Run (Corrected Step)
+- name: 'gcr.io/cloud-builders/gcloud'
   args:
-  - '-i'
-  - 'gcr.io/cloud-builders/gcloud'
-  - '-c'
-  - |
-    gcloud run deploy dsa-assistant-service \
-      --image=asia-south1-docker.pkg.dev/$PROJECT_ID/dsa-assistant-repo/dsa-assistant-image:$COMMIT_SHA \
-      --region=asia-south1 \
-      --platform=managed \
-      --allow-unauthenticated
+  - 'run'
+  - 'deploy'
+  - 'dsa-assistant-service'
+  - '--image=asia-south1-docker.pkg.dev/$PROJECT_ID/dsa-assistant-repo/dsa-assistant-image:$COMMIT_SHA'
+  - '--region=asia-south1'
+  - '--platform=managed'
+  - '--allow-unauthenticated'
 
 images:
 - 'asia-south1-docker.pkg.dev/$PROJECT_ID/dsa-assistant-repo/dsa-assistant-image:$COMMIT_SHA'
 
-# ADD THIS NEW SECTION AT THE END
 options:
   logging: CLOUD_LOGGING_ONLY
