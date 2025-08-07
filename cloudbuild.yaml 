@@ -1,0 +1,25 @@
+steps:
+# This step builds your Docker container
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'asia-south1-docker.pkg.dev/$PROJECT_ID/dsa-assistant-repo/dsa-assistant-image:$COMMIT_SHA', '.']
+
+# This step pushes the container to Google's Artifact Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/dsa-assistant-repo/dsa-assistant-image:$COMMIT_SHA']
+
+# This step deploys your container to Cloud Run, making it public
+- name: 'gcr.io/google-appengine/exec-wrapper'
+  args:
+  - '-i'
+  - 'gcr.io/cloud-builders/gcloud'
+  - '-c'
+  - |
+    gcloud run deploy dsa-assistant-service \
+      --image=asia-south1-docker.pkg.dev/$PROJECT_ID/dsa-assistant-repo/dsa-assistant-image:$COMMIT_SHA \
+      --region=asia-south1 \
+      --platform=managed \
+      --allow-unauthenticated
+
+# This tells Cloud Build which image to use for the deployment
+images:
+- 'asia-south1-docker.pkg.dev/$PROJECT_ID/dsa-assistant-repo/dsa-assistant-image:$COMMIT_SHA'
