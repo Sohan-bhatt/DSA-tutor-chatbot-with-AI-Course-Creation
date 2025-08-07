@@ -7,7 +7,7 @@ steps:
 - name: 'gcr.io/cloud-builders/docker'
   args: ['push', 'asia-south1-docker.pkg.dev/$PROJECT_ID/dsa-assistant-repo/dsa-assistant-image:$COMMIT_SHA']
 
-# This step deploys your container to Cloud Run, making it public
+# This step deploys your container to Cloud Run
 - name: 'gcr.io/google-appengine/exec-wrapper'
   args:
   - '-i'
@@ -20,6 +20,9 @@ steps:
       --platform=managed \
       --allow-unauthenticated
 
-# This tells Cloud Build which image to use for the deployment
 images:
 - 'asia-south1-docker.pkg.dev/$PROJECT_ID/dsa-assistant-repo/dsa-assistant-image:$COMMIT_SHA'
+
+# ADD THIS NEW SECTION AT THE END
+options:
+  logging: CLOUD_LOGGING_ONLY
